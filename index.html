@@ -136,6 +136,17 @@
                         </div>
                         <button type="submit" id="auth-submit-btn" class="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-700 transition shadow-lg shadow-emerald-600/30 mt-4">دخول للمنصة</button>
                     </form>
+
+                    <!-- زر تسجيل الدخول باستخدام جوجل -->
+                    <div class="mt-8 relative flex items-center justify-center">
+                        <div class="absolute w-full border-t border-gray-200"></div>
+                        <span class="px-4 bg-white text-gray-400 font-bold relative text-sm">أو</span>
+                    </div>
+
+                    <button onclick="app.loginWithGoogle()" type="button" class="mt-6 w-full flex items-center justify-center px-4 py-3.5 border-2 border-gray-100 rounded-xl font-bold text-gray-700 bg-white hover:bg-gray-50 transition shadow-sm">
+                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="h-6 w-6 ml-3" alt="Google">
+                        الدخول باستخدام جوجل
+                    </button>
                     
                     <p class="mt-8 text-center text-base text-gray-600 font-medium">
                         <span id="auth-toggle-text">ليس لديك حساب؟</span>
@@ -151,7 +162,7 @@
                 <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
                     <div>
                         <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">لوحة تحكم الإدارة</h1>
-                        <p class="text-gray-500 mt-1 font-bold"><i class="fa-solid fa-crown text-yellow-500 ml-1"></i> حساب المدير: <span id="admin-display-email"></span></p>
+                        <p class="text-gray-500 mt-1 font-bold"><i class="fa-solid fa-crown text-yellow-500 ml-1"></i> مرحباً بك: <span id="admin-display-email" class="text-emerald-700"></span></p>
                     </div>
                     <div class="bg-emerald-50 text-emerald-800 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center self-start sm:self-auto border border-emerald-200">
                         <i class="fa-solid fa-shield-halved ml-2 text-emerald-600"></i> النظام مفعل وجاهز
@@ -387,11 +398,12 @@
             },
 
             logout: function() { alert("جاري التحميل..."); },
-            deleteProperty: function() { alert("جاري التحميل..."); }
+            deleteProperty: function() { alert("جاري التحميل..."); },
+            loginWithGoogle: function() { alert("جاري التحميل..."); }
         };
 
         // ==========================================
-        // 2. تفعيل قاعدة البيانات
+        // 2. تفعيل قاعدة البيانات و Google Auth
         // ==========================================
         document.addEventListener('DOMContentLoaded', function() {
             try {
@@ -407,7 +419,12 @@
                 firebase.initializeApp(firebaseConfig);
                 const auth = firebase.auth();
                 const db = firebase.firestore();
-                const ADMIN_EMAIL = 'kareemwael0213@gmail.com';
+                
+                // === قائمة الإيميلات المسموح لها بإدارة الموقع (الأدمنز) ===
+                const ADMIN_EMAILS = [
+                    'kareemwael0213@gmail.com',
+                    'mz723065@gmail.com' // تم إضافة الإيميل الجديد هنا
+                ];
 
                 auth.onAuthStateChanged(function(user) {
                     if (!user) {
@@ -418,6 +435,25 @@
                 window.app.logout = async function() {
                     await auth.signOut();
                     window.app.showView('home');
+                };
+
+                // تفعيل الدخول باستخدام جوجل
+                window.app.loginWithGoogle = async function() {
+                    try {
+                        const provider = new firebase.auth.GoogleAuthProvider();
+                        await auth.signInWithPopup(provider);
+                        window.app.showView('home');
+                    } catch (err) {
+                        const errorBox = document.getElementById('auth-error');
+                        errorBox.classList.remove('hidden');
+                        if (err.code === 'auth/unauthorized-domain') {
+                            errorBox.innerText = "هذا النطاق غير مصرح له بتسجيل الدخول، يرجى إضافته في إعدادات Firebase.";
+                        } else if (err.code === 'auth/operation-not-allowed') {
+                            errorBox.innerText = "تسجيل الدخول بجوجل مغلق، يرجى تفعيله من Firebase.";
+                        } else {
+                            errorBox.innerText = "خطأ: " + err.message;
+                        }
+                    }
                 };
 
                 window.app.deleteProperty = async function(id, isFromDetailsPage) {
@@ -523,9 +559,12 @@
                     }
                 };
 
+                // مراقبة حالة الحساب والتحقق من الأدمن
                 auth.onAuthStateChanged(function(user) {
                     window.appState.user = user;
-                    window.appState.isAdmin = user && user.email === ADMIN_EMAIL;
+                    
+                    // هنا يتم فحص هل الإيميل موجود في قائمة المديرين أم لا
+                    window.appState.isAdmin = user && user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
 
                     const adminBtn = document.getElementById('nav-admin-btn');
                     const userInfo = document.getElementById('nav-user-info');
