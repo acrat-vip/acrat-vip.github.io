@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>عقارات النخبة</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts (Tajawal) -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     
     <style>
@@ -29,14 +26,12 @@
         .view-section.active { display: block; }
     </style>
 
-    <!-- Firebase SDK (Classic / Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
 </head>
-<body class="text-gray-800 antialiased">
+<body class="text-gray-800 antialiased relative">
 
-    <!-- Navbar -->
     <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
@@ -72,10 +67,8 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="pb-16 min-h-screen">
         
-        <!-- ================= HOME VIEW ================= -->
         <section id="view-home" class="view-section active animate-fade-in">
             <div class="relative bg-emerald-900 overflow-hidden">
                 <div class="absolute inset-0">
@@ -97,8 +90,7 @@
                     <span id="properties-count" class="text-emerald-700 font-bold bg-emerald-100 px-4 py-1.5 rounded-full border border-emerald-200">0 عقار</span>
                 </div>
                 <div id="properties-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                    <!-- العقارات ستظهر هنا -->
-                </div>
+                    </div>
                 <div id="no-properties-msg" class="bg-white rounded-3xl p-16 text-center shadow-lg border border-gray-100">
                     <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gray-50 mb-6">
                         <i class="fa-solid fa-house-chimney-crack text-5xl text-gray-300"></i>
@@ -109,7 +101,6 @@
             </div>
         </section>
 
-        <!-- ================= LOGIN VIEW ================= -->
         <section id="view-login" class="view-section animate-fade-in">
             <div class="flex items-center justify-center px-4 py-16">
                 <div class="bg-white p-8 sm:p-10 rounded-[2rem] shadow-2xl border border-gray-100 w-full max-w-md relative overflow-hidden">
@@ -137,7 +128,6 @@
                         <button type="submit" id="auth-submit-btn" class="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-700 transition shadow-lg shadow-emerald-600/30 mt-4">دخول للمنصة</button>
                     </form>
 
-                    <!-- زر تسجيل الدخول باستخدام جوجل -->
                     <div class="mt-8 relative flex items-center justify-center">
                         <div class="absolute w-full border-t border-gray-200"></div>
                         <span class="px-4 bg-white text-gray-400 font-bold relative text-sm">أو</span>
@@ -156,7 +146,6 @@
             </div>
         </section>
 
-        <!-- ================= ADMIN VIEW ================= -->
         <section id="view-admin" class="view-section animate-fade-in">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
@@ -170,7 +159,6 @@
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Form -->
                     <div class="lg:col-span-1">
                         <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-gray-100 lg:sticky lg:top-24">
                             <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center pb-4 border-b border-gray-100">
@@ -189,7 +177,6 @@
                             </form>
                         </div>
                     </div>
-                    <!-- List -->
                     <div class="lg:col-span-2">
                         <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center pb-4 border-b border-gray-100">
@@ -197,15 +184,13 @@
                                 <span id="admin-prop-count" class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-lg mr-auto text-sm">0</span>
                             </h2>
                             <div id="admin-properties-list" class="space-y-5">
-                                <!-- Admin items injected here -->
-                            </div>
+                                </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ================= DETAILS VIEW ================= -->
         <section id="view-details" class="view-section animate-fade-in">
             <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
                 <button onclick="app.showView('home')" class="mb-6 flex items-center text-gray-600 hover:text-emerald-700 font-bold transition bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 w-fit">
@@ -242,7 +227,10 @@
                                 <a id="btn-whatsapp" href="#" target="_blank" class="block w-full bg-[#25D366] text-white py-3.5 rounded-xl font-bold mt-3 hover:bg-[#1ebd5a] transition shadow-md text-lg relative z-10"><i class="fa-brands fa-whatsapp mr-2 text-xl"></i> تواصل واتساب</a>
                             </div>
                             
-                            <div id="detail-admin-actions" class="hidden mt-6">
+                            <div id="detail-admin-actions" class="hidden mt-6 space-y-3">
+                                <button onclick="app.openEditModal(window.appState.currentPropertyId)" id="btn-edit-detail" class="w-full bg-blue-50 text-blue-600 border border-blue-200 py-3.5 rounded-xl font-bold hover:bg-blue-600 hover:text-white transition shadow-sm text-lg flex items-center justify-center cursor-pointer">
+                                    <i class="fa-solid fa-pen-to-square mr-2"></i> تعديل بيانات العقار
+                                </button>
                                 <button id="btn-delete-detail" class="w-full bg-red-50 text-red-600 border border-red-200 py-3.5 rounded-xl font-bold hover:bg-red-600 hover:text-white transition shadow-sm text-lg flex items-center justify-center cursor-pointer">
                                     <i class="fa-solid fa-trash mr-2"></i> حذف هذا العقار
                                 </button>
@@ -255,9 +243,25 @@
 
     </main>
 
-    <!-- ========================================== -->
-    <!-- 1. النظام الأساسي للواجهة (يعمل دائماً 100%) -->
-    <!-- ========================================== -->
+    <div id="edit-modal" class="hidden fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 sm:p-8 relative">
+            <button onclick="app.closeEditModal()" class="absolute top-5 left-5 text-gray-400 hover:text-red-500 transition text-2xl"><i class="fa-solid fa-xmark"></i></button>
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center border-b border-gray-100 pb-4">
+                <i class="fa-solid fa-pen-to-square ml-2 text-blue-600"></i> تعديل بيانات العقار
+            </h2>
+            <form id="edit-property-form" class="space-y-4">
+                <input type="hidden" id="edit-prop-id">
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">عنوان العقار <span class="text-red-500">*</span></label><input required type="text" id="edit-prop-title" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-medium transition"></div>
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">المكان / الحي <span class="text-red-500">*</span></label><input required type="text" id="edit-prop-address" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-medium transition"></div>
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">السعر (بالجنيه) <span class="text-red-500">*</span></label><input required type="number" id="edit-prop-price" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-medium transition"></div>
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">رقم التواصل <span class="text-red-500">*</span></label><input required type="tel" id="edit-prop-contact" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none dir-ltr text-right focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-medium transition"></div>
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">رابط صورة العقار</label><input type="url" id="edit-prop-image" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none dir-ltr text-right focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-medium transition"></div>
+                <div><label class="block text-sm font-bold text-gray-700 mb-1">التفاصيل الوصفية <span class="text-red-500">*</span></label><textarea required id="edit-prop-details" rows="4" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none resize-none focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-medium transition"></textarea></div>
+                <button type="submit" id="edit-submit-btn" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-lg mt-6">حفظ التعديلات</button>
+            </form>
+        </div>
+    </div>
+
     <script>
         window.appState = { user: null, isAdmin: false, properties: [], isLoginMode: true, currentSearch: '', currentPropertyId: null };
 
@@ -383,7 +387,10 @@
                                 <div>
                                     <div class="flex justify-between items-start">
                                         <h3 class="font-bold text-xl text-gray-900 pr-2">${p.title}</h3>
-                                        <button onclick="app.deleteProperty('${p.id}', false)" class="text-red-500 bg-red-50 hover:bg-red-500 hover:text-white p-3 rounded-xl transition flex-shrink-0" title="حذف العقار"><i class="fa-solid fa-trash"></i></button>
+                                        <div class="flex gap-2">
+                                            <button onclick="app.openEditModal('${p.id}')" class="text-blue-500 bg-blue-50 hover:bg-blue-500 hover:text-white p-3 rounded-xl transition flex-shrink-0" title="تعديل العقار"><i class="fa-solid fa-pen"></i></button>
+                                            <button onclick="app.deleteProperty('${p.id}', false)" class="text-red-500 bg-red-50 hover:bg-red-500 hover:text-white p-3 rounded-xl transition flex-shrink-0" title="حذف العقار"><i class="fa-solid fa-trash"></i></button>
+                                        </div>
                                     </div>
                                     <p class="text-sm text-gray-500 mt-2 flex items-center font-medium"><i class="fa-solid fa-location-dot ml-2 text-gray-400"></i>${p.address}</p>
                                 </div>
@@ -395,6 +402,25 @@
                         </div>
                     `;
                 });
+            },
+
+            openEditModal: function(id) {
+                const property = window.appState.properties.find(p => p.id === id);
+                if(!property) return;
+                
+                document.getElementById('edit-prop-id').value = property.id;
+                document.getElementById('edit-prop-title').value = property.title;
+                document.getElementById('edit-prop-address').value = property.address;
+                document.getElementById('edit-prop-price').value = property.price;
+                document.getElementById('edit-prop-contact').value = property.contact;
+                document.getElementById('edit-prop-image').value = property.imageUrl || '';
+                document.getElementById('edit-prop-details').value = property.details;
+                
+                document.getElementById('edit-modal').classList.remove('hidden');
+            },
+
+            closeEditModal: function() {
+                document.getElementById('edit-modal').classList.add('hidden');
             },
 
             logout: function() { alert("جاري التحميل..."); },
@@ -423,7 +449,7 @@
                 // === قائمة الإيميلات المسموح لها بإدارة الموقع (الأدمنز) ===
                 const ADMIN_EMAILS = [
                     'kareemwael0213@gmail.com',
-                    'mz723065@gmail.com' // تم إضافة الإيميل الجديد هنا
+                    'mz723065@gmail.com'
                 ];
 
                 auth.onAuthStateChanged(function(user) {
@@ -523,6 +549,42 @@
                     }
                 };
 
+                // منطق تعديل العقار
+                document.getElementById('edit-property-form').onsubmit = async function(e) {
+                    e.preventDefault();
+                    const id = document.getElementById('edit-prop-id').value;
+                    const btn = document.getElementById('edit-submit-btn');
+                    
+                    const updatedProp = {
+                        title: document.getElementById('edit-prop-title').value,
+                        address: document.getElementById('edit-prop-address').value,
+                        price: Number(document.getElementById('edit-prop-price').value),
+                        contact: document.getElementById('edit-prop-contact').value,
+                        imageUrl: document.getElementById('edit-prop-image').value,
+                        details: document.getElementById('edit-prop-details').value,
+                    };
+
+                    const originalText = btn.innerText;
+                    btn.innerText = 'جاري الحفظ...';
+                    btn.disabled = true;
+
+                    try {
+                        await db.collection('properties').doc(id).update(updatedProp);
+                        alert('تم تعديل العقار بنجاح!');
+                        window.app.closeEditModal();
+                        
+                        // تحديث صفحة التفاصيل إذا كنا داخلها
+                        if(document.getElementById('view-details').classList.contains('active') && window.appState.currentPropertyId === id) {
+                            setTimeout(() => window.app.showDetails(id), 300); // تحديث العرض
+                        }
+                    } catch (err) {
+                        alert('حدث خطأ أثناء التعديل: ' + err.message);
+                    } finally {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    }
+                };
+
                 document.getElementById('add-property-form').onsubmit = async function(e) {
                     e.preventDefault();
                     const btn = document.getElementById('admin-submit-btn');
@@ -563,7 +625,6 @@
                 auth.onAuthStateChanged(function(user) {
                     window.appState.user = user;
                     
-                    // هنا يتم فحص هل الإيميل موجود في قائمة المديرين أم لا
                     window.appState.isAdmin = user && user.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
 
                     const adminBtn = document.getElementById('nav-admin-btn');
@@ -623,5 +684,3 @@
     </script>
 </body>
 </html>
-
-
