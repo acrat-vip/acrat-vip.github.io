@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عقارات النخبة</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts (Tajawal) -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f9fafb; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .dir-ltr { direction: ltr; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #059669; }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+    </style>
+
+    <!-- Firebase SDK (Classic / Compat Version) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+</head>
+<body class="text-gray-800 antialiased">
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center cursor-pointer group" onclick="app.showView('home')">
+                    <div class="bg-emerald-600 p-2 rounded-xl group-hover:bg-emerald-700 transition shadow-md">
+                        <i class="fa-solid fa-house text-white text-xl"></i>
+                    </div>
+                    <span class="mr-3 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-l from-emerald-600 to-teal-800">
+                        عقارات النخبة
+                    </span>
+                </div>
+
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    <button id="nav-admin-btn" onclick="app.showView('admin')" class="hidden items-center px-4 py-2 rounded-full font-bold transition-all text-emerald-800 bg-emerald-100 hover:bg-emerald-200">
+                        <i class="fa-solid fa-gear ml-2"></i>
+                        <span class="hidden sm:inline">لوحة التحكم</span>
+                    </button>
+                    
+                    <div id="nav-user-info" class="hidden items-center space-x-3 space-x-reverse bg-gray-50 px-4 py-1.5 rounded-full border border-gray-200">
+                        <span id="nav-user-email" class="hidden md:block text-sm font-bold text-gray-600 truncate max-w-[120px]"></span>
+                        <button onclick="app.logout()" class="flex items-center text-red-600 hover:text-red-800 font-bold transition">
+                            <i class="fa-solid fa-right-from-bracket sm:ml-2"></i>
+                            <span class="hidden sm:inline">خروج</span>
+                        </button>
+                    </div>
+
+                    <button id="nav-login-btn" onclick="app.showView('login')" class="flex items-center px-6 py-2.5 bg-emerald-600 text-white hover:bg-emerald-700 rounded-full font-bold shadow-lg hover:shadow-xl transition-all">
+                        <i class="fa-regular fa-user sm:ml-2"></i>
+                        <span class="hidden sm:inline">تسجيل الدخول</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pb-16 min-h-screen">
+        
+        <!-- ================= HOME VIEW ================= -->
+        <section id="view-home" class="view-section active animate-fade-in">
+            <div class="relative bg-emerald-900 overflow-hidden">
+                <div class="absolute inset-0">
+                    <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="Background" class="w-full h-full object-cover opacity-30"/>
+                    <div class="absolute inset-0 bg-gradient-to-t from-gray-50 to-transparent"></div>
+                </div>
+                <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-28 text-center">
+                    <h1 class="text-3xl sm:text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-6 drop-shadow-lg">اكتشف منزل أحلامك</h1>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg sm:text-xl text-emerald-100 mb-10 font-medium">أفضل وأفخم العقارات المختارة بعناية لتناسب ذوقك الرفيع.</p>
+                    <div class="max-w-3xl mx-auto bg-white rounded-full shadow-2xl p-2 flex items-center">
+                        <div class="hidden sm:block p-3 bg-emerald-50 rounded-full text-emerald-600"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        <input type="text" id="search-input" oninput="app.onSearchInput(event)" placeholder="ابحث بالمدينة، الحي، أو التفاصيل..." class="flex-1 bg-transparent border-none outline-none px-4 text-base sm:text-lg text-gray-800 font-medium placeholder-gray-400 w-full"/>
+                    </div>
+                </div>
+            </div>
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 relative z-10">
+                <div class="flex justify-between items-end mb-8">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-900">أحدث العقارات</h2>
+                    <span id="properties-count" class="text-emerald-700 font-bold bg-emerald-100 px-4 py-1.5 rounded-full border border-emerald-200">0 عقار</span>
+                </div>
+                <div id="properties-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    <!-- العقارات ستظهر هنا -->
+                </div>
+                <div id="no-properties-msg" class="bg-white rounded-3xl p-16 text-center shadow-lg border border-gray-100">
+                    <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-gray-50 mb-6">
+                        <i class="fa-solid fa-house-chimney-crack text-5xl text-gray-300"></i>
+                    </div>
+                    <h3 id="status-text" class="text-2xl font-bold text-gray-900 mb-2">جاري التحميل...</h3>
+                    <p class="text-gray-500 font-medium">لحظات ويتم جلب البيانات من الخادم.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= LOGIN VIEW ================= -->
+        <section id="view-login" class="view-section animate-fade-in">
+            <div class="flex items-center justify-center px-4 py-16">
+                <div class="bg-white p-8 sm:p-10 rounded-[2rem] shadow-2xl border border-gray-100 w-full max-w-md relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-[100px] -z-10"></div>
+                    
+                    <div class="text-center mb-8 relative z-10">
+                        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 mb-6 shadow-inner">
+                            <i class="fa-solid fa-user-shield text-3xl"></i>
+                        </div>
+                        <h2 id="auth-title" class="text-3xl font-extrabold text-gray-900">تسجيل الدخول</h2>
+                        <p class="text-gray-500 mt-2 font-medium">لإدارة المنصة وإضافة العقارات</p>
+                    </div>
+
+                    <div id="auth-error" class="hidden mb-6 bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm font-bold border border-red-100 text-center break-words"></div>
+
+                    <form id="auth-form" class="space-y-5 relative z-10">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">البريد الإلكتروني</label>
+                            <input type="email" id="auth-email" required class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition dir-ltr text-right font-medium" placeholder="name@example.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">كلمة المرور</label>
+                            <input type="password" id="auth-password" required class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition dir-ltr text-right font-medium" placeholder="••••••••">
+                        </div>
+                        <button type="submit" id="auth-submit-btn" class="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-emerald-700 transition shadow-lg shadow-emerald-600/30 mt-4">دخول للمنصة</button>
+                    </form>
+                    
+                    <p class="mt-8 text-center text-base text-gray-600 font-medium">
+                        <span id="auth-toggle-text">ليس لديك حساب؟</span>
+                        <button onclick="app.toggleAuthMode()" id="auth-toggle-btn" class="font-bold text-emerald-600 hover:text-emerald-800 underline decoration-2 underline-offset-4 ml-1">سجل الآن</button>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ADMIN VIEW ================= -->
+        <section id="view-admin" class="view-section animate-fade-in">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">لوحة تحكم الإدارة</h1>
+                        <p class="text-gray-500 mt-1 font-bold"><i class="fa-solid fa-crown text-yellow-500 ml-1"></i> حساب المدير: <span id="admin-display-email"></span></p>
+                    </div>
+                    <div class="bg-emerald-50 text-emerald-800 px-5 py-2.5 rounded-xl font-bold text-sm flex items-center self-start sm:self-auto border border-emerald-200">
+                        <i class="fa-solid fa-shield-halved ml-2 text-emerald-600"></i> النظام مفعل وجاهز
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Form -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-gray-100 lg:sticky lg:top-24">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center pb-4 border-b border-gray-100">
+                                <i class="fa-solid fa-circle-plus ml-2 text-emerald-600 text-2xl"></i> إضافة عقار جديد
+                            </h2>
+                            <div id="admin-msg" class="hidden p-4 rounded-xl mb-6 text-sm font-bold text-center"></div>
+                            
+                            <form id="add-property-form" class="space-y-5">
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">عنوان العقار <span class="text-red-500">*</span></label><input required type="text" id="prop-title" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 font-medium transition" placeholder="مثال: فيلا فاخرة بالتجمع"></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">المكان / الحي <span class="text-red-500">*</span></label><input required type="text" id="prop-address" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 font-medium transition" placeholder="مثال: القاهرة الجديدة"></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">السعر (بالجنيه) <span class="text-red-500">*</span></label><input required type="number" id="prop-price" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 font-medium transition" placeholder="5000000"></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">رقم التواصل <span class="text-red-500">*</span></label><input required type="tel" id="prop-contact" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none dir-ltr text-right focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 font-medium transition" placeholder="01012345678"></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">رابط صورة العقار</label><input type="url" id="prop-image" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none dir-ltr text-right focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 font-medium transition" placeholder="https://..."></div>
+                                <div><label class="block text-sm font-bold text-gray-700 mb-2">التفاصيل الوصفية <span class="text-red-500">*</span></label><textarea required id="prop-details" rows="4" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none resize-none focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 font-medium transition" placeholder="اكتب مساحة العقار، عدد الغرف، التشطيب..."></textarea></div>
+                                <button type="submit" id="admin-submit-btn" class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-800 transition shadow-lg mt-6">نشر العقار فوراً</button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- List -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-xl border border-gray-100">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center pb-4 border-b border-gray-100">
+                                <i class="fa-solid fa-list-check ml-2 text-emerald-600 text-2xl"></i> العقارات المنشورة 
+                                <span id="admin-prop-count" class="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-lg mr-auto text-sm">0</span>
+                            </h2>
+                            <div id="admin-properties-list" class="space-y-5">
+                                <!-- Admin items injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= DETAILS VIEW ================= -->
+        <section id="view-details" class="view-section animate-fade-in">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+                <button onclick="app.showView('home')" class="mb-6 flex items-center text-gray-600 hover:text-emerald-700 font-bold transition bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 w-fit">
+                    <i class="fa-solid fa-arrow-right ml-2"></i> العودة للرئيسية
+                </button>
+                <div class="bg-white rounded-[2rem] overflow-hidden shadow-2xl border border-gray-100">
+                    <div class="h-64 sm:h-[400px] w-full relative">
+                        <img id="detail-img" src="" alt="Property" class="w-full h-full object-cover"/>
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-6 sm:p-10">
+                            <h1 id="detail-title" class="text-2xl sm:text-4xl font-extrabold text-white mb-3"></h1>
+                            <div class="flex items-center text-emerald-300 text-base sm:text-lg font-bold">
+                                <i class="fa-solid fa-location-dot ml-2"></i>
+                                <span id="detail-address"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 sm:p-12 flex flex-col md:flex-row gap-8 sm:gap-12">
+                        <div class="flex-1">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                                <i class="fa-solid fa-circle-info ml-2 text-emerald-600"></i> الوصف والتفاصيل
+                            </h3>
+                            <p id="detail-desc" class="text-gray-700 leading-loose whitespace-pre-wrap text-lg bg-gray-50 p-8 rounded-3xl border border-gray-100 font-medium"></p>
+                        </div>
+                        <div class="w-full md:w-80 space-y-6">
+                            <div class="bg-gray-50 p-8 rounded-3xl border border-gray-100 text-center">
+                                <p class="text-gray-500 text-sm mb-3 font-bold">السعر المطلوب</p>
+                                <div id="detail-price" class="text-3xl sm:text-4xl font-extrabold text-emerald-600 flex justify-center items-center"></div>
+                            </div>
+                            <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white p-8 rounded-3xl shadow-xl shadow-emerald-600/30 text-center relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-10 -mt-10"></div>
+                                <p class="mb-4 text-emerald-100 font-bold">للتواصل مع المالك</p>
+                                <div id="detail-contact" class="text-2xl sm:text-3xl font-bold flex items-center justify-center dir-ltr mb-8"></div>
+                                <a id="btn-call" href="#" class="block w-full bg-white text-emerald-700 py-3.5 rounded-xl font-bold hover:bg-emerald-50 transition shadow-md text-lg relative z-10"><i class="fa-solid fa-phone mr-2"></i> اتصال الآن</a>
+                                <a id="btn-whatsapp" href="#" target="_blank" class="block w-full bg-[#25D366] text-white py-3.5 rounded-xl font-bold mt-3 hover:bg-[#1ebd5a] transition shadow-md text-lg relative z-10"><i class="fa-brands fa-whatsapp mr-2 text-xl"></i> تواصل واتساب</a>
+                            </div>
+                            
+                            <div id="detail-admin-actions" class="hidden mt-6">
+                                <button id="btn-delete-detail" class="w-full bg-red-50 text-red-600 border border-red-200 py-3.5 rounded-xl font-bold hover:bg-red-600 hover:text-white transition shadow-sm text-lg flex items-center justify-center cursor-pointer">
+                                    <i class="fa-solid fa-trash mr-2"></i> حذف هذا العقار
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- 1. النظام الأساسي للواجهة (يعمل دائماً 100%) -->
+    <!-- ========================================== -->
+    <script>
+        window.appState = { user: null, isAdmin: false, properties: [], isLoginMode: true, currentSearch: '', currentPropertyId: null };
+
+        window.app = {
+            showView: function(viewId) {
+                document.querySelectorAll('.view-section').forEach(function(el) { el.classList.remove('active'); });
+                document.getElementById('view-' + viewId).classList.add('active');
+                if(viewId === 'home') window.app.renderProperties();
+                window.scrollTo(0, 0);
+            },
+            
+            toggleAuthMode: function() {
+                window.appState.isLoginMode = !window.appState.isLoginMode;
+                document.getElementById('auth-title').innerText = window.appState.isLoginMode ? 'تسجيل الدخول' : 'إنشاء حساب جديد';
+                document.getElementById('auth-submit-btn').innerText = window.appState.isLoginMode ? 'دخول للمنصة' : 'إنشاء الحساب';
+                document.getElementById('auth-toggle-text').innerText = window.appState.isLoginMode ? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟';
+                document.getElementById('auth-toggle-btn').innerText = window.appState.isLoginMode ? 'سجل الآن' : 'سجل الدخول';
+                document.getElementById('auth-error').classList.add('hidden');
+            },
+
+            onSearchInput: function(e) {
+                window.appState.currentSearch = e.target.value;
+                window.app.renderProperties();
+            },
+
+            showDetails: function(id) {
+                const property = window.appState.properties.find(p => p.id === id);
+                if(!property) return;
+                
+                window.appState.currentPropertyId = id;
+                document.getElementById('detail-img').src = property.imageUrl || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1600&q=80';
+                document.getElementById('detail-title').innerText = property.title;
+                document.getElementById('detail-address').innerText = property.address;
+                document.getElementById('detail-desc').innerText = property.details;
+                document.getElementById('detail-price').innerText = parseInt(property.price).toLocaleString() + ' ج.م';
+                document.getElementById('detail-contact').innerHTML = property.contact;
+                
+                document.getElementById('btn-call').href = 'tel:' + property.contact;
+                let waPhone = property.contact.startsWith('0') ? '2' + property.contact : property.contact;
+                document.getElementById('btn-whatsapp').href = 'https://wa.me/' + waPhone;
+
+                const adminActions = document.getElementById('detail-admin-actions');
+                if(window.appState.isAdmin) {
+                    adminActions.classList.remove('hidden');
+                } else {
+                    adminActions.classList.add('hidden');
+                }
+                window.app.showView('details');
+            },
+
+            renderProperties: function() {
+                const grid = document.getElementById('properties-grid');
+                const noMsg = document.getElementById('no-properties-msg');
+                const statusText = document.getElementById('status-text');
+                const countBadge = document.getElementById('properties-count');
+                grid.innerHTML = '';
+
+                const filtered = window.appState.properties.filter(p => {
+                    const s = window.appState.currentSearch.toLowerCase();
+                    return p.title.toLowerCase().includes(s) || p.address.toLowerCase().includes(s) || p.details.toLowerCase().includes(s);
+                });
+
+                countBadge.innerText = filtered.length + ' عقار';
+
+                if (filtered.length === 0) {
+                    noMsg.classList.remove('hidden');
+                    if(window.appState.properties.length === 0) {
+                         statusText.innerText = "لا توجد عقارات مضافة حتى الآن.";
+                    } else {
+                         statusText.innerText = "لا يوجد نتائج مطابقة للبحث.";
+                    }
+                } else {
+                    noMsg.classList.add('hidden');
+                    filtered.forEach(p => {
+                        const img = p.imageUrl || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80';
+                        grid.innerHTML += `
+                            <div onclick="app.showDetails('${p.id}')" class="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer border border-gray-100 flex flex-col h-full group">
+                                <div class="relative h-64 overflow-hidden flex-shrink-0">
+                                    <img src="${img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"/>
+                                    <div class="absolute top-4 right-4 bg-white/95 backdrop-blur px-5 py-2 rounded-full font-extrabold text-emerald-800 shadow-sm border border-emerald-50 text-sm">
+                                        ${parseInt(p.price).toLocaleString()} ج.م
+                                    </div>
+                                </div>
+                                <div class="p-6 flex flex-col flex-grow justify-between">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2 leading-snug">${p.title}</h3>
+                                        <div class="flex items-start text-gray-500 mb-4 font-medium">
+                                            <i class="fa-solid fa-location-dot mt-1 ml-2 text-emerald-500"></i>
+                                            <span class="text-sm line-clamp-2">${p.address}</span>
+                                        </div>
+                                    </div>
+                                    <div class="border-t border-gray-100 pt-5 flex justify-between items-center mt-auto">
+                                        <div class="flex items-center text-gray-500 font-bold">
+                                            <i class="fa-solid fa-phone ml-2 text-gray-400"></i>
+                                            <span class="text-sm dir-ltr">${p.contact}</span>
+                                        </div>
+                                        <button class="text-emerald-700 font-bold text-sm bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-xl transition">التفاصيل <i class="fa-solid fa-angle-left mr-1 text-xs"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            },
+
+            renderAdminList: function() {
+                const list = document.getElementById('admin-properties-list');
+                document.getElementById('admin-prop-count').innerText = window.appState.properties.length;
+                list.innerHTML = '';
+                
+                if (window.appState.properties.length === 0) {
+                    list.innerHTML = `<div class="text-center py-16 text-gray-500 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200"><p class="font-bold text-lg mb-2">لا توجد عقارات حالياً</p></div>`;
+                    return;
+                }
+
+                window.appState.properties.forEach(p => {
+                    const date = new Date(p.createdAt).toLocaleDateString('ar-EG');
+                    const img = p.imageUrl || 'https://via.placeholder.com/150';
+                    list.innerHTML += `
+                        <div class="flex flex-col sm:flex-row bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-lg hover:border-emerald-200 transition-all">
+                            <img src="${img}" class="w-full sm:w-48 h-48 sm:h-auto object-cover"/>
+                            <div class="p-5 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start">
+                                        <h3 class="font-bold text-xl text-gray-900 pr-2">${p.title}</h3>
+                                        <button onclick="app.deleteProperty('${p.id}', false)" class="text-red-500 bg-red-50 hover:bg-red-500 hover:text-white p-3 rounded-xl transition flex-shrink-0" title="حذف العقار"><i class="fa-solid fa-trash"></i></button>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-2 flex items-center font-medium"><i class="fa-solid fa-location-dot ml-2 text-gray-400"></i>${p.address}</p>
+                                </div>
+                                <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                                    <span class="font-bold text-emerald-600 text-xl">${parseInt(p.price).toLocaleString()} ج.م</span>
+                                    <span class="text-xs font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg"><i class="fa-regular fa-calendar ml-1"></i> ${date}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            },
+
+            logout: function() { alert("جاري التحميل..."); },
+            deleteProperty: function() { alert("جاري التحميل..."); }
+        };
+
+        // ==========================================
+        // 2. تفعيل قاعدة البيانات
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const firebaseConfig = {
+                    apiKey: "AIzaSyAh6QxLIgbx4n2QjqkHA6iaHytPk_qQ87c",
+                    authDomain: "acarat-82123.firebaseapp.com",
+                    projectId: "acarat-82123",
+                    storageBucket: "acarat-82123.firebasestorage.app",
+                    messagingSenderId: "506307323254",
+                    appId: "1:506307323254:web:01b97253654855bc38c657"
+                };
+
+                firebase.initializeApp(firebaseConfig);
+                const auth = firebase.auth();
+                const db = firebase.firestore();
+                const ADMIN_EMAIL = 'kareemwael0213@gmail.com';
+
+                auth.onAuthStateChanged(function(user) {
+                    if (!user) {
+                        auth.signInAnonymously().catch(function(e){});
+                    }
+                });
+
+                window.app.logout = async function() {
+                    await auth.signOut();
+                    window.app.showView('home');
+                };
+
+                window.app.deleteProperty = async function(id, isFromDetailsPage) {
+                    if(!confirm('هل أنت متأكد من حذف هذا العقار نهائياً؟')) return;
+                    
+                    let deleteBtn = document.getElementById('btn-delete-detail');
+                    let originalBtnHTML = '';
+                    if(isFromDetailsPage && deleteBtn) {
+                        originalBtnHTML = deleteBtn.innerHTML;
+                        deleteBtn.innerHTML = 'جاري الحذف...';
+                        deleteBtn.disabled = true;
+                    }
+
+                    try {
+                        await db.collection('properties').doc(id).delete();
+                        alert("تم مسح العقار بنجاح!");
+                        if(isFromDetailsPage) {
+                            window.app.showView('home');
+                        }
+                    } catch (err) {
+                        alert('حدث خطأ أثناء الحذف.');
+                        if(isFromDetailsPage && deleteBtn) {
+                            deleteBtn.innerHTML = originalBtnHTML;
+                            deleteBtn.disabled = false;
+                        }
+                    }
+                };
+
+                document.getElementById('btn-delete-detail').addEventListener('click', function() {
+                    if(window.appState.currentPropertyId) {
+                        window.app.deleteProperty(window.appState.currentPropertyId, true);
+                    }
+                });
+
+                document.getElementById('auth-form').onsubmit = async function(e) {
+                    e.preventDefault();
+                    const email = document.getElementById('auth-email').value;
+                    const password = document.getElementById('auth-password').value;
+                    const btn = document.getElementById('auth-submit-btn');
+                    const errorBox = document.getElementById('auth-error');
+                    
+                    errorBox.classList.add('hidden');
+                    const originalText = btn.innerText;
+                    btn.innerText = 'جاري الاتصال...';
+                    btn.disabled = true;
+
+                    try {
+                        if(window.appState.isLoginMode) {
+                            await auth.signInWithEmailAndPassword(email, password);
+                        } else {
+                            await auth.createUserWithEmailAndPassword(email, password);
+                        }
+                        window.app.showView('home');
+                        document.getElementById('auth-form').reset();
+                    } catch(err) {
+                        errorBox.classList.remove('hidden');
+                        if (err.code === 'auth/email-already-in-use') {
+                            errorBox.innerText = "الحساب موجود بالفعل! اختر 'سجل الدخول'.";
+                        } else if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
+                            errorBox.innerText = "بيانات الدخول غير صحيحة.";
+                        } else {
+                            errorBox.innerText = "خطأ: " + err.message;
+                        }
+                    } finally {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    }
+                };
+
+                document.getElementById('add-property-form').onsubmit = async function(e) {
+                    e.preventDefault();
+                    const btn = document.getElementById('admin-submit-btn');
+                    const msgBox = document.getElementById('admin-msg');
+                    msgBox.classList.add('hidden');
+                    msgBox.className = 'p-4 rounded-xl mb-6 text-sm font-bold text-center'; 
+
+                    const newProp = {
+                        title: document.getElementById('prop-title').value,
+                        address: document.getElementById('prop-address').value,
+                        price: Number(document.getElementById('prop-price').value),
+                        contact: document.getElementById('prop-contact').value,
+                        imageUrl: document.getElementById('prop-image').value,
+                        details: document.getElementById('prop-details').value,
+                        createdAt: Date.now()
+                    };
+
+                    btn.innerText = 'جاري الإضافة...';
+                    btn.disabled = true;
+
+                    try {
+                        await db.collection('properties').add(newProp);
+                        msgBox.innerText = 'تمت إضافة العقار بنجاح!';
+                        msgBox.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+                        msgBox.classList.remove('hidden');
+                        document.getElementById('add-property-form').reset();
+                    } catch (err) {
+                        msgBox.innerText = 'حدث خطأ أثناء الإضافة.';
+                        msgBox.classList.add('bg-red-50', 'text-red-700', 'border', 'border-red-200');
+                        msgBox.classList.remove('hidden');
+                    } finally {
+                        btn.innerText = 'نشر العقار فوراً';
+                        btn.disabled = false;
+                    }
+                };
+
+                auth.onAuthStateChanged(function(user) {
+                    window.appState.user = user;
+                    window.appState.isAdmin = user && user.email === ADMIN_EMAIL;
+
+                    const adminBtn = document.getElementById('nav-admin-btn');
+                    const userInfo = document.getElementById('nav-user-info');
+                    const loginBtn = document.getElementById('nav-login-btn');
+                    const displayEmail = document.getElementById('admin-display-email');
+                    const adminActionsDetail = document.getElementById('detail-admin-actions');
+                    
+                    if(window.appState.isAdmin) {
+                        adminBtn.classList.remove('hidden');
+                        adminBtn.classList.add('flex');
+                        if(adminActionsDetail && document.getElementById('view-details').classList.contains('active')) {
+                             adminActionsDetail.classList.remove('hidden');
+                        }
+                    } else {
+                        adminBtn.classList.add('hidden');
+                        adminBtn.classList.remove('flex');
+                        if(adminActionsDetail) adminActionsDetail.classList.add('hidden');
+                    }
+
+                    if(user && !user.isAnonymous) {
+                        userInfo.classList.remove('hidden');
+                        userInfo.classList.add('flex');
+                        document.getElementById('nav-user-email').innerText = user.email;
+                        if(displayEmail) displayEmail.innerText = user.email;
+                        loginBtn.classList.add('hidden');
+                        loginBtn.classList.remove('flex');
+                    } else {
+                        userInfo.classList.add('hidden');
+                        userInfo.classList.remove('flex');
+                        loginBtn.classList.remove('hidden');
+                        loginBtn.classList.add('flex');
+                    }
+                    
+                    if(window.appState.isAdmin && document.getElementById('view-admin').classList.contains('active')) {
+                        window.app.renderAdminList();
+                    }
+                });
+
+                db.collection('properties').onSnapshot(function(snapshot) {
+                    const data = snapshot.docs.map(function(doc) {
+                        return { id: doc.id, ...doc.data() };
+                    });
+                    data.sort(function(a, b) { return b.createdAt - a.createdAt; });
+                    window.appState.properties = data;
+                    
+                    window.app.renderProperties();
+                    if(document.getElementById('view-admin').classList.contains('active')) {
+                        window.app.renderAdminList();
+                    }
+                });
+
+            } catch (err) {
+                console.error("Firebase Error:", err);
+            }
+        });
+    </script>
+</body>
+</html>
+
+
